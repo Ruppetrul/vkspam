@@ -45,7 +45,7 @@ func userCheck(jwtToken string) (*models.User, error) {
 
 	for rows.Next() {
 		count++
-		err = rows.Scan(&user.Id, &user.Name, &user.Token, &user.InviteCode)
+		err = rows.Scan(&user.Id, &user.Name, &user.Token)
 		if err != nil {
 			return nil, err
 		}
@@ -62,6 +62,6 @@ func userCheck(jwtToken string) (*models.User, error) {
 	return &user, nil
 }
 
-func GetUserFromContext(ctx context.Context) *models.User {
-	return ctx.Value(UserContextKey).(*models.User)
+func GetUserFromContext(ctx context.Context) models.User {
+	return *ctx.Value(UserContextKey).(*models.User)
 }
