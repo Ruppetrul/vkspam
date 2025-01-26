@@ -61,7 +61,7 @@ func GetDBInstance() (models.DbSingleton, error) {
 		connStr += fmt.Sprintf("%s=%s ", key, value)
 	}
 	connStr = strings.TrimSpace(connStr)
-	log.Println(connStr)
+
 	once.Do(func() {
 		instance = models.DbSingleton{}
 		instance.Db, err = sql.Open("postgres", connStr)
