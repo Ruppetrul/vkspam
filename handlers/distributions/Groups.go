@@ -2,10 +2,13 @@ package distributions
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"vkspam/database"
 	"vkspam/middleware"
+	"vkspam/models"
 	"vkspam/repositories"
 	"vkspam/services"
 )
@@ -26,7 +29,7 @@ func NewDistributionGroupHandler() *DistributionGroupHandler {
 }
 
 func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request) {
-	middleware.GetUserFromContext(r.Context())
+	user := middleware.GetUserFromContext(r.Context())
 
 	if r.Method == http.MethodGet {
 		_, err := w.Write([]byte("There will be group list."))
@@ -37,12 +40,46 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	if r.Method == http.MethodPost {
-		//TODO create
-	}
+	if r.Method == http.MethodPost || r.Method == http.MethodPut {
+		name := r.FormValue("name")
+		description := r.FormValue("description")
 
-	if r.Method == http.MethodPut {
-		//TODO update
+		if len(name) < 1 {
+			http.Error(w, "Missing required parameter 'name'", http.StatusBadRequest)
+			return
+		}
+		if len(description) < 1 {
+			http.Error(w, "Missing required parameter 'description'", http.StatusBadRequest)
+			return
+		}
+
+		newDistributionGroup := models.DistributionGroup{
+			Name:        r.Form.Get("name"),
+			Description: r.Form.Get("description"),
+			UserId:      user.Id,
+		}
+
+		if r.Method == http.MethodPut {
+			id := r.FormValue("id")
+			if len(id) < 1 {
+				http.Error(w, "Missing required parameter 'id'", http.StatusBadRequest)
+				return
+			}
+
+			recordId, err := strconv.Atoi(id)
+			if err != nil {
+				fmt.Println("Ошибка преобразования:", err)
+				return
+			}
+
+			newDistributionGroup.Id = recordId
+		}
+
+		form := h.service.Save(newDistributionGroup)
+
+		if form != nil {
+			http.Error(w, form.Error(), http.StatusInternalServerError)
+		}
 	}
 
 	if r.Method == http.MethodDelete {
