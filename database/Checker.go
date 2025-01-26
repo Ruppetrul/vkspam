@@ -3,11 +3,14 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
 	"strings"
 	"sync"
+	"time"
 	"vkspam/database/migrations"
+	"vkspam/models"
 )
 
 func CheckAndMigrate() {
@@ -19,21 +22,26 @@ func CheckAndMigrate() {
 	runMigration(db, migrations.CreateUsersMigration{})
 }
 
-func runMigration(db DbSingleton, migration migrations.MigrationInterface) {
-	_, err := migration.Run(db)
-	if err != nil {
-		log.Fatal("Migration error", err)
+func runMigration(db models.DbSingleton, migration MigrationInterface) {
+	for retries := 0; retries < 5; retries++ {
+		_, err := migration.Run(db)
+		if err == nil {
+			return
+		}
+
+		if err.Error() == "pq: the database system is starting up" {
+			fmt.Println("Database is already running")
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		log.Fatalf("Migration error %v", err)
 	}
 }
 
-type DbSingleton struct {
-	Db *sql.DB
-}
-
-var instance DbSingleton
+var instance models.DbSingleton
 var once sync.Once
 
-func GetDBInstance() (DbSingleton, error) {
+func GetDBInstance() (models.DbSingleton, error) {
 	var err error
 
 	params := map[string]string{
@@ -42,6 +50,7 @@ func GetDBInstance() (DbSingleton, error) {
 		"dbname":   os.Getenv("DB_NAME"),
 		"sslmode":  os.Getenv("DB_SSL_MODE"),
 		"host":     os.Getenv("DB_HOST"),
+		"port":     os.Getenv("DB_PORT"),
 	}
 
 	var connStr string
@@ -49,15 +58,25 @@ func GetDBInstance() (DbSingleton, error) {
 		connStr += fmt.Sprintf("%s=%s ", key, value)
 	}
 	connStr = strings.TrimSpace(connStr)
-
+	log.Println(connStr)
 	once.Do(func() {
-		instance = DbSingleton{}
+		instance = models.DbSingleton{}
 		instance.Db, err = sql.Open("postgres", connStr)
-	})
 
-	if err != nil {
-		log.Fatalf("DB connect error: %v", err)
-	}
+		for retries := 0; retries < 5; retries++ {
+			err = instance.Db.Ping()
+			if err == nil {
+				break
+			}
+
+			if err.Error() == "pq: the database system is starting up" {
+				fmt.Println("Database is already running")
+				time.Sleep(2 * time.Second)
+				continue
+			}
+			log.Fatalf("Error ping database %v", err)
+		}
+	})
 
 	return instance, nil
 }
