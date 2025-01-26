@@ -7,6 +7,8 @@ import (
 	"os"
 	"vkspam/database"
 	"vkspam/handlers"
+	"vkspam/handlers/distributions"
+	"vkspam/middleware"
 )
 
 func main() {
@@ -14,6 +16,7 @@ func main() {
 	database.CheckAndMigrate()
 
 	http.HandleFunc("/", handlers.Index)
+	http.HandleFunc("/distributions/groups", middleware.AuthMiddleware(distributions.Group))
 
 	err := http.ListenAndServe(":80", nil)
 	if err != nil {

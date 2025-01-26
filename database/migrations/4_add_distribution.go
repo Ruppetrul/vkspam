@@ -9,7 +9,13 @@ func (v AddDistribution) GetSql() (sql string) {
 	var anyPublic models.DistributionType = models.AnyPublic
 
 	return `
-		CREATE TYPE distribution_type AS ENUM ('` + anyPublic.String() + `');
+		DO $$
+		BEGIN
+			-- Проверяем, существует ли уже тип distribution_type
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'distribution_type') THEN
+				CREATE TYPE distribution_type AS ENUM ('` + anyPublic.String() + `');
+			END IF;
+		END $$;
 		CREATE TABLE IF NOT EXISTS distribution (
 			id SERIAL PRIMARY KEY,
 			name VARCHAR(256) NOT NULL,
