@@ -21,6 +21,7 @@ func CheckAndMigrate() {
 
 	runMigration(db, migrations.CreateUsersMigration{}.GetSql())
 	runMigration(db, migrations.CreateUsersJwt{}.GetSql())
+	runMigration(db, migrations.AddDistributionGroup{}.GetSql())
 }
 
 func runMigration(db models.DbSingleton, sql string) {
