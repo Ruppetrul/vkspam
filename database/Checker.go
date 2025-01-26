@@ -19,12 +19,13 @@ func CheckAndMigrate() {
 		log.Fatal("Db connection error", err)
 	}
 
-	runMigration(db, migrations.CreateUsersMigration{})
+	runMigration(db, migrations.CreateUsersMigration{}.GetSql())
+	runMigration(db, migrations.CreateUsersJwt{}.GetSql())
 }
 
-func runMigration(db models.DbSingleton, migration MigrationInterface) {
+func runMigration(db models.DbSingleton, sql string) {
 	for retries := 0; retries < 5; retries++ {
-		_, err := migration.Run(db)
+		_, err := BaseMigration{}.Run(db, sql)
 		if err == nil {
 			return
 		}

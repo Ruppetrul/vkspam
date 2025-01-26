@@ -1,17 +1,8 @@
 package migrations
 
-import (
-	"vkspam/models"
-)
+type CreateUsersMigration struct {
+}
 
-type CreateUsersMigration struct{}
-
-func (v CreateUsersMigration) Run(db models.DbSingleton) (success bool, err error) {
-	_, err = db.Db.Exec(`CREATE TABLE IF NOT EXISTS users (id integer NOT NULL, PRIMARY KEY (id));`)
-
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+func (v CreateUsersMigration) GetSql() (sql string) {
+	return "CREATE TABLE IF NOT EXISTS users (id integer NOT NULL, PRIMARY KEY (id));"
 }
