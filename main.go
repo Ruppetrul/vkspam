@@ -16,7 +16,8 @@ func main() {
 	database.CheckAndMigrate()
 
 	http.HandleFunc("/", handlers.Index)
-	http.HandleFunc("/distributions/groups", middleware.AuthMiddleware(distributions.Group))
+	http.HandleFunc("/distributions/group", middleware.AuthMiddleware(distributions.Group))
+	http.HandleFunc("/distributions/group/list", middleware.AuthMiddleware(distributions.List))
 
 	err := http.ListenAndServe(":80", nil)
 	if err != nil {

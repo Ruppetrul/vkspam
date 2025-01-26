@@ -11,7 +11,6 @@ func (v AddDistribution) GetSql() (sql string) {
 	return `
 		DO $$
 		BEGIN
-			-- Проверяем, существует ли уже тип distribution_type
 			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'distribution_type') THEN
 				CREATE TYPE distribution_type AS ENUM ('` + anyPublic.String() + `');
 			END IF;
