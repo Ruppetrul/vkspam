@@ -83,7 +83,31 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 	}
 
 	if r.Method == http.MethodDelete {
-		//TODO delete
+		id := r.FormValue("id")
+		if len(id) < 1 {
+			http.Error(w, "Missing required parameter 'id'", http.StatusBadRequest)
+			return
+		}
+
+		recordId, err := strconv.Atoi(id)
+		if err != nil {
+			http.Error(w, "Invalid 'id' parameter", http.StatusBadRequest)
+			return
+		}
+
+		err = h.service.Delete(recordId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write([]byte("Group deleted successfully"))
+		if err != nil {
+			log.Println("Error writing response:", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 

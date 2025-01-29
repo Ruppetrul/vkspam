@@ -10,6 +10,7 @@ import (
 type DistributionGroupRepository interface {
 	GetList(userId int) ([]models.DistributionGroup, error)
 	Save(dg models.DistributionGroup) error
+	Delete(id int) error
 }
 
 type distributionRepository struct {
@@ -53,6 +54,24 @@ func (d *distributionRepository) Save(dg models.DistributionGroup) error {
 		if err != nil {
 			return err.Err()
 		}
+	}
+
+	return nil
+}
+
+func (d *distributionRepository) Delete(id int) error {
+	result, err := d.DB.Exec("DELETE FROM distributiongroup WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("no record found to delete")
 	}
 
 	return nil
