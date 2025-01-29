@@ -32,7 +32,27 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 	user := middleware.GetUserFromContext(r.Context())
 
 	if r.Method == http.MethodGet {
-		_, err := w.Write([]byte("There will be group list."))
+		id := r.FormValue("id")
+
+		if len(id) < 1 {
+			http.Error(w, "Missing required parameter 'id'", http.StatusBadRequest)
+			return
+		}
+
+		recordId, err := strconv.Atoi(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		model, err := h.service.Get(recordId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = json.NewEncoder(w).Encode(model)
+
 		if err != nil {
 			log.Println("Error index page:", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)

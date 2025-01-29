@@ -11,6 +11,7 @@ type DistributionGroupRepository interface {
 	GetList(userId int) ([]models.DistributionGroup, error)
 	Save(dg models.DistributionGroup) error
 	Delete(id int) error
+	Get(id int) (*models.DistributionGroup, error)
 }
 
 type distributionRepository struct {
@@ -75,4 +76,22 @@ func (d *distributionRepository) Delete(id int) error {
 	}
 
 	return nil
+}
+
+func (d *distributionRepository) Get(id int) (*models.DistributionGroup, error) {
+	rows, err := d.DB.Query("SELECT * FROM distributiongroup WHERE id = $1", id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var distributionGroup models.DistributionGroup
+	for rows.Next() {
+		if err := rows.Scan(&distributionGroup.Id, &distributionGroup.Name, &distributionGroup.Description, &distributionGroup.UserId); err != nil {
+			return nil, err
+		}
+	}
+
+	return &distributionGroup, nil
 }
