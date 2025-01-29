@@ -20,7 +20,7 @@ type DistributionGroupHandler struct {
 func NewDistributionGroupHandler() *DistributionGroupHandler {
 	db, _ := database.GetDBInstance()
 
-	distributionRepository := repositories.NewDistributionRepository(db.Db)
+	distributionRepository := repositories.NewDistributionGroupRepository(db.Db)
 	distributionService := services.NewDistributionGroupService(distributionRepository)
 
 	return &DistributionGroupHandler{

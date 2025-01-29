@@ -14,15 +14,15 @@ type DistributionGroupRepository interface {
 	Get(id int) (*models.DistributionGroup, error)
 }
 
-type distributionRepository struct {
+type distributionGroupRepository struct {
 	DB *sql.DB
 }
 
-func NewDistributionRepository(db *sql.DB) DistributionGroupRepository {
-	return &distributionRepository{DB: db}
+func NewDistributionGroupRepository(db *sql.DB) DistributionGroupRepository {
+	return &distributionGroupRepository{DB: db}
 }
 
-func (d *distributionRepository) GetList(userId int) ([]models.DistributionGroup, error) {
+func (d *distributionGroupRepository) GetList(userId int) ([]models.DistributionGroup, error) {
 	rows, err := d.DB.Query("SELECT * FROM distributiongroup WHERE user_id = $1", userId)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (d *distributionRepository) GetList(userId int) ([]models.DistributionGroup
 	return distributionGroups, nil
 }
 
-func (d *distributionRepository) Save(dg models.DistributionGroup) error {
+func (d *distributionGroupRepository) Save(dg models.DistributionGroup) error {
 	if dg.Id > 0 {
 		db, _ := database.GetDBInstance()
 		_, err := db.Db.Exec(`UPDATE distributiongroup SET name = $1, description = $2 WHERE id = $3;`, dg.Name, dg.Description, dg.Id)
@@ -60,7 +60,7 @@ func (d *distributionRepository) Save(dg models.DistributionGroup) error {
 	return nil
 }
 
-func (d *distributionRepository) Delete(id int) error {
+func (d *distributionGroupRepository) Delete(id int) error {
 	result, err := d.DB.Exec("DELETE FROM distributiongroup WHERE id = $1", id)
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (d *distributionRepository) Delete(id int) error {
 	return nil
 }
 
-func (d *distributionRepository) Get(id int) (*models.DistributionGroup, error) {
+func (d *distributionGroupRepository) Get(id int) (*models.DistributionGroup, error) {
 	rows, err := d.DB.Query("SELECT * FROM distributiongroup WHERE id = $1", id)
 	if err != nil {
 		return nil, err

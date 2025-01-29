@@ -15,11 +15,14 @@ func main() {
 	checkEnv()
 	database.CheckAndMigrate()
 
-	distributionsHandler := distributions.NewDistributionGroupHandler()
+	distributionGroupsHandler := distributions.NewDistributionGroupHandler()
 
 	http.HandleFunc("/", handlers.Index)
-	http.HandleFunc("/distributions/group", middleware.AuthMiddleware(distributionsHandler.Group))
-	http.HandleFunc("/distributions/group/list", middleware.AuthMiddleware(distributionsHandler.List))
+	http.HandleFunc("/distributions/group", middleware.AuthMiddleware(distributionGroupsHandler.Group))
+	http.HandleFunc("/distributions/group/list", middleware.AuthMiddleware(distributionGroupsHandler.List))
+
+	distributionsHandler := distributions.DistributionHandler{}
+	http.HandleFunc("/distribution", middleware.AuthMiddleware(distributionsHandler.Distribution))
 
 	err := http.ListenAndServe(":80", nil)
 	if err != nil {
