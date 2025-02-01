@@ -1,12 +1,11 @@
 package distributions
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"vkspam/database"
+	"vkspam/handlers"
 	"vkspam/middleware"
 	"vkspam/models"
 	"vkspam/repositories"
@@ -35,29 +34,46 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 		id := r.FormValue("id")
 
 		if len(id) < 1 {
-			http.Error(w, "Missing required parameter 'id'", http.StatusBadRequest)
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				fmt.Sprintf("Missing required parameter 'id'"),
+			)
+
 			return
 		}
 
 		recordId, err := strconv.Atoi(id)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				err.Error(),
+			)
+
 			return
 		}
 
 		model, err := h.service.Get(recordId)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				err.Error(),
+			)
+
 			return
 		}
 
-		err = json.NewEncoder(w).Encode(model)
-
-		if err != nil {
-			log.Println("Error index page:", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+		handlers.ReturnAppBaseResponse(
+			w,
+			http.StatusOK,
+			true,
+			model,
+		)
 	}
 
 	if r.Method == http.MethodPost || r.Method == http.MethodPut {
@@ -65,11 +81,23 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 		description := r.FormValue("description")
 
 		if len(name) < 1 {
-			http.Error(w, "Missing required parameter 'name'", http.StatusBadRequest)
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"Missing required parameter 'name'",
+			)
+
 			return
 		}
 		if len(description) < 1 {
-			http.Error(w, "Missing required parameter 'description'", http.StatusBadRequest)
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"Missing required parameter 'description'",
+			)
+
 			return
 		}
 
@@ -82,67 +110,118 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 		if r.Method == http.MethodPut {
 			id := r.FormValue("id")
 			if len(id) < 1 {
-				http.Error(w, "Missing required parameter 'id'", http.StatusBadRequest)
+				handlers.ReturnAppBaseResponse(
+					w,
+					http.StatusBadRequest,
+					false,
+					"Missing required parameter 'id'",
+				)
+
 				return
 			}
 
 			recordId, err := strconv.Atoi(id)
 			if err != nil {
-				fmt.Println("Ошибка преобразования:", err)
+				handlers.ReturnAppBaseResponse(
+					w,
+					http.StatusInternalServerError,
+					false,
+					fmt.Sprintf("Ошибка преобразования: %s", err),
+				)
+
 				return
 			}
 
 			newDistributionGroup.Id = recordId
 		}
 
-		form := h.service.Save(newDistributionGroup)
+		err := h.service.Save(newDistributionGroup)
 
-		if form != nil {
-			http.Error(w, form.Error(), http.StatusInternalServerError)
+		if err != nil {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				err.Error(),
+			)
 		}
+
+		handlers.ReturnAppBaseResponse(
+			w,
+			http.StatusOK,
+			true,
+			newDistributionGroup,
+		)
 	}
 
 	if r.Method == http.MethodDelete {
 		id := r.FormValue("id")
 		if len(id) < 1 {
-			http.Error(w, "Missing required parameter 'id'", http.StatusBadRequest)
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"Missing required parameter 'id'",
+			)
+
 			return
 		}
 
 		recordId, err := strconv.Atoi(id)
 		if err != nil {
-			http.Error(w, "Invalid 'id' parameter", http.StatusBadRequest)
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"Invalid 'id' parameter",
+			)
+
 			return
 		}
 
 		err = h.service.Delete(recordId)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				err.Error(),
+			)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		_, err = w.Write([]byte("Group deleted successfully"))
-		if err != nil {
-			log.Println("Error writing response:", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+		handlers.ReturnAppBaseResponse(
+			w,
+			http.StatusOK,
+			true,
+			"Group deleted successfully",
+		)
 	}
 }
 
 func (h *DistributionGroupHandler) List(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		handlers.ReturnAppBaseResponse(
+			w,
+			http.StatusMethodNotAllowed,
+			false,
+			fmt.Sprintf("Only POST method allowed"),
+		)
+		return
+	}
+
 	user := middleware.GetUserFromContext(r.Context())
 	distributionGroups, err := h.service.GetList(user.Id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	err = json.NewEncoder(w).Encode(distributionGroups)
-	if err != nil {
-		http.Error(w, "Error return list groups", http.StatusInternalServerError)
-		log.Println("Error return list groups:", err)
 		return
 	}
+
+	handlers.ReturnAppBaseResponse(
+		w,
+		http.StatusOK,
+		true,
+		distributionGroups,
+	)
 }
