@@ -81,6 +81,7 @@ func (h *LoginHandler) Register(w http.ResponseWriter, r *http.Request) {
 		true,
 		user.Token,
 	}
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		handlers.ReturnAppBaseResponse(

@@ -45,7 +45,6 @@ func (s *userService) TryLogin(email string, password string) (string, error) {
 	}
 
 	return token, nil
-	//TODO записать в базу и вернуть.
 }
 
 type TokenData struct {
