@@ -200,12 +200,12 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *DistributionGroupHandler) List(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodGet {
 		handlers.ReturnAppBaseResponse(
 			w,
 			http.StatusMethodNotAllowed,
 			false,
-			fmt.Sprintf("Only POST method allowed"),
+			fmt.Sprintf("Only GET method allowed"),
 		)
 		return
 	}
