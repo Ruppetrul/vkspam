@@ -47,7 +47,7 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 			w,
 			http.StatusBadRequest,
 			false,
-			"Missing required parameter 'id'",
+			"Missing required parameter 'email'",
 		)
 		return
 	}

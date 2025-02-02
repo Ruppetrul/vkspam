@@ -25,6 +25,7 @@ func main() {
 	authHandler := auth.NewLoginHandler()
 
 	http.HandleFunc("/", handlers.Index)
+
 	http.HandleFunc("/auth/login", authHandler.Login)
 	http.HandleFunc("/auth/register", authHandler.Register)
 
