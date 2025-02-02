@@ -65,6 +65,17 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		claims := tokenData.Claims.(*UserData)
 
+		if claims.Id == 0 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				"User check error.",
+			)
+
+			return
+		}
+
 		user, err := GetUserById(claims.Id)
 		if err != nil {
 			handlers.ReturnAppBaseResponse(
@@ -103,11 +114,11 @@ func GetUserById(id int) (*models.User, error) {
 	}
 
 	if count > 1 {
-		return nil, errors.New("Logic error. More than one user. Admin, Wtf?")
+		return nil, errors.New("logic error. More than one user. Admin, Wtf")
 	}
 
 	if count < 1 {
-		return nil, errors.New("Logic error. No user.")
+		return nil, errors.New("logic error. No user")
 	}
 
 	return &user, nil
