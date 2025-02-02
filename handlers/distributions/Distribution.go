@@ -123,5 +123,13 @@ func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Reques
 			)
 			return
 		}
+
+		handlers.ReturnAppBaseResponse(
+			w,
+			http.StatusCreated,
+			true,
+			distribution,
+		)
+		return
 	}
 }
