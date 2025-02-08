@@ -27,6 +27,53 @@ func NewDistributionHandler() *DistributionHandler {
 }
 
 func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		id := r.FormValue("id")
+
+		if len(id) < 1 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				fmt.Sprintf("Missing required parameter 'id'"),
+			)
+
+			return
+		}
+
+		recordId, err := strconv.Atoi(id)
+		if err != nil {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				err.Error(),
+			)
+
+			return
+		}
+
+		model, err := h.service.Get(recordId)
+		if err != nil {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				err.Error(),
+			)
+
+			return
+		}
+
+		handlers.ReturnAppBaseResponse(
+			w,
+			http.StatusOK,
+			true,
+			model,
+		)
+		return
+	}
+
 	if r.Method == http.MethodPost || r.Method == http.MethodPut {
 		groupId := r.FormValue("group_id")
 		if len(groupId) < 1 {
