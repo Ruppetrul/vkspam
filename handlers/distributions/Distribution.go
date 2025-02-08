@@ -27,7 +27,7 @@ func NewDistributionHandler() *DistributionHandler {
 }
 
 func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method == http.MethodGet {
 		id := r.FormValue("id")
 
 		if len(id) < 1 {
@@ -86,6 +86,17 @@ func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Reques
 			return
 		}
 
+		name := r.FormValue("name")
+		if len(name) < 1 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"Missing required parameter 'name'",
+			)
+			return
+		}
+
 		groupIdInt, err := strconv.Atoi(groupId)
 		if err != nil {
 			handlers.ReturnAppBaseResponse(
@@ -94,10 +105,10 @@ func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Reques
 				false,
 				fmt.Sprintf("Error conversation: %s", err),
 			)
+			return
 		}
 
 		url := r.FormValue("url")
-
 		if len(url) < 1 {
 			handlers.ReturnAppBaseResponse(
 				w,
@@ -132,6 +143,8 @@ func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Reques
 		distribution := models.Distribution{
 			GroupId: groupIdInt,
 			Type:    typeF,
+			Url:     url,
+			Name:    name,
 		}
 
 		if r.Method == http.MethodPut {
@@ -155,6 +168,7 @@ func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Reques
 					false,
 					fmt.Sprintf("Error conversation: %s", err),
 				)
+				return
 			}
 
 			distribution.Id = idInt

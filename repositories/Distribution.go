@@ -10,6 +10,7 @@ import (
 type DistributionRepository interface {
 	Save(d models.Distribution) error
 	Get(id int) (*models.Distribution, error)
+	GetListByGroup(groupId int) (*[]models.Distribution, error)
 }
 
 type distributionRepository struct {
@@ -25,11 +26,11 @@ func (dr *distributionRepository) Save(d models.Distribution) error {
 		db, _ := database.GetDBInstance()
 		_, err := db.Db.Exec(`UPDATE distribution SET name = $1, type = $2, url = $3 WHERE id = $4;`, d.Name, d.Type, d.Url)
 		if err != nil {
-			return errors.New("Error insert Distribution")
+			return errors.New("error insert Distribution")
 		}
 	} else {
 		db, _ := database.GetDBInstance()
-		err := db.Db.QueryRow(`INSERT INTO distribution (name, type, url) VALUES ($1, $2, $3)`, d.Name, d.Type, d.Url)
+		err := db.Db.QueryRow(`INSERT INTO distribution (name, type, url, group_id) VALUES ($1, $2, $3, $4)`, d.Name, d.Type, d.Url, d.GroupId)
 		if err != nil {
 			return err.Err()
 		}
@@ -54,4 +55,24 @@ func (d *distributionRepository) Get(id int) (*models.Distribution, error) {
 	}
 
 	return &distribution, nil
+}
+
+func (d *distributionRepository) GetListByGroup(groupId int) (*[]models.Distribution, error) {
+	rows, err := d.DB.Query("SELECT * FROM distribution WHERE group_id = $1", groupId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var distributionList []models.Distribution
+	for rows.Next() {
+		var distribution models.Distribution
+		if err := rows.Scan(&distribution.Id, &distribution.Name, &distribution.Type, &distribution.Url, &distribution.GroupId); err != nil {
+			return nil, err
+		}
+		distributionList = append(distributionList, distribution)
+	}
+
+	return &distributionList, nil
 }

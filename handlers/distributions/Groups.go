@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"vkspam/database"
 	"vkspam/handlers"
+	"vkspam/handlers/responses"
 	"vkspam/middleware"
 	"vkspam/models"
 	"vkspam/repositories"
@@ -13,17 +14,22 @@ import (
 )
 
 type DistributionGroupHandler struct {
-	service services.DistributionGroupService
+	service             services.DistributionGroupService
+	distributionService services.DistributionService
 }
 
 func NewDistributionGroupHandler() *DistributionGroupHandler {
 	db, _ := database.GetDBInstance()
 
-	distributionRepository := repositories.NewDistributionGroupRepository(db.Db)
-	distributionService := services.NewDistributionGroupService(distributionRepository)
+	distributionGroupRepository := repositories.NewDistributionGroupRepository(db.Db)
+	distributionGroupService := services.NewDistributionGroupService(distributionGroupRepository)
+
+	distributionRepository := repositories.NewDistributionRepository(db.Db)
+	distributionService := services.NewDistributionService(distributionRepository)
 
 	return &DistributionGroupHandler{
-		service: distributionService,
+		service:             distributionGroupService,
+		distributionService: distributionService,
 	}
 }
 
@@ -57,6 +63,8 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 		}
 
 		model, err := h.service.Get(recordId)
+		distributions, err := h.distributionService.GetListByGroup(recordId)
+
 		if err != nil {
 			handlers.ReturnAppBaseResponse(
 				w,
@@ -72,7 +80,13 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			w,
 			http.StatusOK,
 			true,
-			model,
+			responses.DistributionGroupResponse{
+				Id:            model.Id,
+				Name:          model.Name,
+				Description:   model.Description,
+				UserId:        model.UserId,
+				Distributions: *distributions,
+			},
 		)
 	}
 
