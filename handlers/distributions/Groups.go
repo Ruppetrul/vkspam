@@ -239,3 +239,7 @@ func (h *DistributionGroupHandler) List(w http.ResponseWriter, r *http.Request) 
 		distributionGroups,
 	)
 }
+
+func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("Run start!")
+}

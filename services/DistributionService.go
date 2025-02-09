@@ -9,6 +9,7 @@ type DistributionService interface {
 	Save(distribution models.Distribution) error
 	Get(id int) (*models.Distribution, error)
 	GetListByGroup(groupId int) (*[]models.Distribution, error)
+	DeleteById(id int) error
 }
 
 type distributionService struct {
@@ -29,4 +30,8 @@ func (s *distributionService) Get(id int) (*models.Distribution, error) {
 
 func (s *distributionService) GetListByGroup(groupId int) (*[]models.Distribution, error) {
 	return s.repo.GetListByGroup(groupId)
+}
+
+func (s *distributionService) DeleteById(id int) error {
+	return s.repo.DeleteById(id)
 }

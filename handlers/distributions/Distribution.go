@@ -193,4 +193,51 @@ func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Reques
 		)
 		return
 	}
+
+	if r.Method == http.MethodDelete {
+		id := r.FormValue("id")
+
+		if len(id) < 1 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				fmt.Sprintf("Missing required parameter 'id'"),
+			)
+
+			return
+		}
+
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				err.Error(),
+			)
+
+			return
+		}
+
+		err = h.service.DeleteById(idInt)
+		if err != nil {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				err.Error(),
+			)
+
+			return
+		}
+		handlers.ReturnAppBaseResponse(
+			w,
+			http.StatusOK,
+			false,
+			nil,
+		)
+
+		return
+	}
 }

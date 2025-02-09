@@ -32,6 +32,7 @@ func main() {
 	http.HandleFunc("/distributions/group", middleware.AuthMiddleware(distributionGroupsHandler.Group))
 	http.HandleFunc("/distributions/group/list", middleware.AuthMiddleware(distributionGroupsHandler.List))
 
+	http.HandleFunc("/distributions/run", middleware.AuthMiddleware(distributionGroupsHandler.Run))
 	distributionsHandler := distributions.NewDistributionHandler()
 	http.HandleFunc("/distribution", middleware.AuthMiddleware(distributionsHandler.Distribution))
 

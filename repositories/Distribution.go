@@ -11,6 +11,7 @@ type DistributionRepository interface {
 	Save(d models.Distribution) error
 	Get(id int) (*models.Distribution, error)
 	GetListByGroup(groupId int) (*[]models.Distribution, error)
+	DeleteById(groupId int) error
 }
 
 type distributionRepository struct {
@@ -75,4 +76,12 @@ func (d *distributionRepository) GetListByGroup(groupId int) (*[]models.Distribu
 	}
 
 	return &distributionList, nil
+}
+
+func (d *distributionRepository) DeleteById(groupId int) error {
+	_, err := d.DB.Exec("DELETE FROM distribution WHERE id = $1", groupId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
