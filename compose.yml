@@ -7,6 +7,8 @@ services:
       - APP_ENV=${APP_ENV}
     depends_on:
       - postgres
+    networks:
+      - vkspam
   postgres:
     image: postgres:15
     ports:
@@ -17,5 +19,10 @@ services:
       - POSTGRES_NAME=${POSTGRES_NAME}
     volumes:
       - ./database/init-roles.sh:/docker-entrypoint-initdb.d/init-roles.sh
+    networks:
+      - vkspam
 volumes:
   postgres_data:
+networks:
+  vkspam:
+    external: true

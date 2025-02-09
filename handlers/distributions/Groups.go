@@ -1,9 +1,14 @@
 package distributions
 
 import (
+	"context"
 	"fmt"
+	pb "github.com/Ruppetrul/vkspam_proto/gen/parser"
+	"google.golang.org/grpc"
+	"log"
 	"net/http"
 	"strconv"
+	"time"
 	"vkspam/database"
 	"vkspam/handlers"
 	"vkspam/handlers/responses"
@@ -241,5 +246,27 @@ func (h *DistributionGroupHandler) List(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("Run start!")
+	conn, err := grpc.Dial("vkspam_parser:10001", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	client := pb.NewParserClient(conn)
+
+	req := &pb.Request{
+		Message: "TEst m",
+	}
+
+	ctx, cancel := context.WithTimeout(request.Context(), time.Second*10)
+	defer cancel()
+
+	res, err := client.Do(ctx, req)
+	if err != nil {
+		fmt.Println("error")
+		fmt.Println(err.Error())
+	} else {
+
+		fmt.Println(res)
+	}
 }

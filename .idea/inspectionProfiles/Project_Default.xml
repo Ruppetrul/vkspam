@@ -5,6 +5,9 @@
       <functions>
         <function importPath="vkspam/database" name="GetDBInstance" />
       </functions>
+      <methods>
+        <method importPath="github.com/Ruppetrul/vkspam_proto/gen/parser" receiver="ParserClient" name="Do" />
+      </methods>
     </inspection_tool>
   </profile>
 </component>
