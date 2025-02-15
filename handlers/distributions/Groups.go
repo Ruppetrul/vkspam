@@ -253,13 +253,28 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		return
 	}
 
-	groupId := request.FormValue("group_id")
-	if len(groupId) < 1 {
-		http.Error(writer, "Missing required parameter 'group_id'", http.StatusBadRequest)
-		return
-	}
+	//groupId := request.FormValue("group_id")
+	//if len(groupId) < 1 {
+	//	http.Error(writer, "Missing required parameter 'group_id'", http.StatusBadRequest)
+	//	return
+	//}
+	//
+	//distributionHandler := NewDistributionHandler()
+	//
+	//groupIdInt, _ := strconv.Atoi(groupId)
+	//
+	//distributions, err := distributionHandler.service.GetListByGroup(groupIdInt)
+	//if err != nil {
+	//	return
+	//}
 
-	go process()
+	distributions := make([]models.Distribution, 0)
+
+	distributions = append(distributions, models.Distribution{
+		Url: "testnautyg",
+	})
+
+	go process(&distributions)
 
 	err := json.NewEncoder(writer).Encode("Success")
 	if err != nil {
@@ -268,7 +283,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 	}
 }
 
-func process() {
+func process(distributions *[]models.Distribution) {
 	conn, err := grpc.Dial("vkspam_parser:10001", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -278,9 +293,15 @@ func process() {
 
 	client := pb.NewParserClient(conn)
 
+	for _, distribution := range *distributions {
+		processDistribution(&client, &distribution)
+	}
+}
+
+func processDistribution(client *pb.ParserClient, distribution *models.Distribution) {
 	req := &pb.ParsePublicRequest{
 		VkToken:   os.Getenv("SYSTEM_VK_TOKEN"),
-		PublicUrl: "testnautyg",
+		PublicUrl: distribution.Url,
 		Filters: &pb.MemberFilters{
 			Birthday: "15.2", //8.2
 			Sex:      2,      //1-woman , 2-man
@@ -290,12 +311,24 @@ func process() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
 	defer cancel()
 
-	res, err := client.ParsePublic(ctx, req)
+	stream, err := (*client).ParsePublic(ctx, req)
 	if err != nil {
 		fmt.Println("error")
 		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(res)
+	for {
+		progress, err := stream.Recv()
+		if err != nil {
+			fmt.Println("error")
+			return
+		}
+
+		fmt.Printf("Прогресс задачи %s: %d%%, Сообщение: %s\n", progress.TaskId, progress.Progress, progress.Message)
+
+		if progress.Progress == 100 {
+			break
+		}
+	}
 }
