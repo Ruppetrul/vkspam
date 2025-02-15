@@ -51,4 +51,8 @@ func checkEnv() {
 	if env = os.Getenv("APP_ENV"); env == "" {
 		log.Fatal("APP_ENV not found.")
 	}
+
+	if env = os.Getenv("SYSTEM_VK_TOKEN"); env == "" {
+		log.Fatal("SYSTEM_VK_TOKEN not found.")
+	}
 }

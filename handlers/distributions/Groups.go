@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 	"vkspam/database"
@@ -255,7 +256,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 	client := pb.NewParserClient(conn)
 
 	req := &pb.ParsePublicRequest{
-		VkToken:   "123",
+		VkToken:   os.Getenv("SYSTEM_VK_TOKEN"),
 		PublicUrl: "izh_golybi",
 	}
 
