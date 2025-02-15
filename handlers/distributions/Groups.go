@@ -254,19 +254,19 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 
 	client := pb.NewParserClient(conn)
 
-	req := &pb.Request{
-		Message: "TEst m",
+	req := &pb.ParsePublicRequest{
+		VkToken:   "123",
+		PublicUrl: "izh_golybi",
 	}
 
 	ctx, cancel := context.WithTimeout(request.Context(), time.Second*10)
 	defer cancel()
 
-	res, err := client.Do(ctx, req)
+	res, err := client.ParsePublic(ctx, req)
 	if err != nil {
 		fmt.Println("error")
 		fmt.Println(err.Error())
 	} else {
-
 		fmt.Println(res)
 	}
 }
