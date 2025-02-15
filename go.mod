@@ -7,7 +7,7 @@ require github.com/joho/godotenv v1.5.1
 require github.com/lib/pq v1.10.9
 
 require (
-	github.com/Ruppetrul/vkspam_proto v0.0.0-20250215112127-a65410b7da9a // indirect
+	github.com/Ruppetrul/vkspam_proto v0.0.0-20250215122020-d91bd08f3d14 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/net v0.32.0 // indirect

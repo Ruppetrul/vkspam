@@ -2,6 +2,7 @@ package distributions
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	pb "github.com/Ruppetrul/vkspam_proto/gen/parser"
 	"google.golang.org/grpc"
@@ -247,9 +248,31 @@ func (h *DistributionGroupHandler) List(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http.Request) {
+	if request.Method != http.MethodPost {
+		http.Error(writer, "Only Post", http.StatusMethodNotAllowed)
+		return
+	}
+
+	groupId := request.FormValue("group_id")
+	if len(groupId) < 1 {
+		http.Error(writer, "Missing required parameter 'group_id'", http.StatusBadRequest)
+		return
+	}
+
+	go process()
+
+	err := json.NewEncoder(writer).Encode("Success")
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func process() {
 	conn, err := grpc.Dial("vkspam_parser:10001", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
+		return
 	}
 	defer conn.Close()
 
@@ -257,17 +280,22 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 
 	req := &pb.ParsePublicRequest{
 		VkToken:   os.Getenv("SYSTEM_VK_TOKEN"),
-		PublicUrl: "izh_golybi",
+		PublicUrl: "testnautyg",
+		Filters: &pb.MemberFilters{
+			Birthday: "15.2", //8.2
+			Sex:      2,      //1-woman , 2-man
+		},
 	}
 
-	ctx, cancel := context.WithTimeout(request.Context(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
 	defer cancel()
 
 	res, err := client.ParsePublic(ctx, req)
 	if err != nil {
 		fmt.Println("error")
 		fmt.Println(err.Error())
-	} else {
-		fmt.Println(res)
+		return
 	}
+
+	fmt.Println(res)
 }
