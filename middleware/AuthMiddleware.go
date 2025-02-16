@@ -96,7 +96,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 func GetUserById(id int) (*models.User, error) {
 	db, _ := database.GetDBInstance()
 
-	rows, err := db.Db.Query("SELECT * FROM users WHERE id = $1;", id)
+	rows, err := db.Db.Query("SELECT id, email FROM users WHERE id = $1;", id)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func GetUserById(id int) (*models.User, error) {
 
 	for rows.Next() {
 		count++
-		err = rows.Scan(&user.Id, &user.Email, &user.Token)
+		err = rows.Scan(&user.Id, &user.Email)
 		if err != nil {
 			return nil, err
 		}

@@ -14,7 +14,7 @@ import (
 type UserService interface {
 	TryLogin(email string, password string) (string, error)
 	CheckEmailExist(email string) (bool, error)
-	Register(email string, password string) (*models.User, error)
+	Register(email string, password string) (*models.User, *string, error)
 }
 
 type userService struct {
@@ -106,28 +106,29 @@ func (s *userService) CheckEmailExist(email string) (bool, error) {
 	return false, nil
 }
 
-func (s *userService) Register(email string, password string) (*models.User, error) {
+func (s *userService) Register(email string, password string) (*models.User, *string, error) {
 	passwordHash, err := hashPassword(password)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	user := models.User{
+	err = s.repo.Save(&models.User{
 		Email:    email,
 		Password: passwordHash,
-	}
-
-	err = s.repo.Save(&user)
+	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	token, err := generateJwtToken(&user)
+	user, err := s.repo.FindUserByEmail(email)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	user.Token = token
+	token, err := generateJwtToken(user)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	return &user, nil
+	return user, &token, nil
 }

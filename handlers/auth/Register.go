@@ -65,7 +65,7 @@ func (h *LoginHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.service.Register(email, password)
+	_, token, err := h.service.Register(email, password)
 	if err != nil {
 		handlers.ReturnAppBaseResponse(
 			w,
@@ -79,7 +79,7 @@ func (h *LoginHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	response := LoginResponse{
 		true,
-		user.Token,
+		*token,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)

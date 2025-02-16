@@ -1,9 +1,8 @@
 package models
 
 type User struct {
-	Id         int    `db:"id"`
-	Email      string `db:"email"`
-	InviteCode string `db:"invite_code"`
-	Password   string `db:"password"`
-	Token      string `db:"token"`
+	Id       int    `db:"id"`
+	Email    string `db:"email"`
+	Password string `db:"password"`
+	VkToken  string `db:"vk_token"`
 }
