@@ -7,7 +7,7 @@ import (
 
 type DistributionGroupService interface {
 	GetList(userId int) ([]models.DistributionGroup, error)
-	Save(group models.DistributionGroup) error
+	Save(group models.DistributionGroup) (int, error)
 	Delete(id int) error
 	Get(id int) (*models.DistributionGroup, error)
 }
@@ -24,7 +24,7 @@ func (s *distributionGroupService) GetList(userId int) ([]models.DistributionGro
 	return s.repo.GetList(userId)
 }
 
-func (s *distributionGroupService) Save(group models.DistributionGroup) error {
+func (s *distributionGroupService) Save(group models.DistributionGroup) (int, error) {
 	return s.repo.Save(group)
 }
 

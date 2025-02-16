@@ -156,23 +156,35 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			newDistributionGroup.Id = recordId
 		}
 
-		err := h.service.Save(newDistributionGroup)
+		id, err := h.service.Save(newDistributionGroup)
 
 		if err != nil {
 			handlers.ReturnAppBaseResponse(
 				w,
 				http.StatusInternalServerError,
 				false,
-				err.Error(),
+				fmt.Sprintf("Save error: %s", err.Error()),
 			)
+			return
 		}
 
+		if id == 0 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				"error check id",
+			)
+			return
+		}
+		newDistributionGroup.Id = id
 		handlers.ReturnAppBaseResponse(
 			w,
 			http.StatusOK,
 			true,
 			newDistributionGroup,
 		)
+		return
 	}
 
 	if r.Method == http.MethodDelete {

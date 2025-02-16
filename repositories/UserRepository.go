@@ -22,7 +22,7 @@ func NewUserRepository(db *sql.DB) UserRepository {
 }
 
 func (repo *userRepository) TryLogin(email string) (*models.User, error) {
-	rows, err := repo.DB.Query("SELECT * FROM users WHERE email = $1", email)
+	rows, err := repo.DB.Query("SELECT id, email, password FROM users WHERE email = $1", email)
 	if err != nil {
 		return nil, err
 	}
