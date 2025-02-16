@@ -297,6 +297,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 
 func process(distributions *[]models.Distribution) {
 	conn, err := grpc.Dial("vkspam_parser:10001", grpc.WithInsecure())
+	fmt.Println(err)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 		return

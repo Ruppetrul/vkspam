@@ -41,7 +41,7 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := r.FormValue("email")
+	email := r.PostFormValue("email")
 	if len(email) == 0 {
 		handlers.ReturnAppBaseResponse(
 			w,
@@ -52,7 +52,7 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	password := r.FormValue("password")
+	password := r.PostFormValue("password")
 	if len(password) == 0 {
 		handlers.ReturnAppBaseResponse(
 			w,

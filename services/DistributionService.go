@@ -6,7 +6,7 @@ import (
 )
 
 type DistributionService interface {
-	Save(distribution models.Distribution) error
+	Save(distribution models.Distribution) (int, error)
 	Get(id int) (*models.Distribution, error)
 	GetListByGroup(groupId int) (*[]models.Distribution, error)
 	DeleteById(id int) error
@@ -20,7 +20,7 @@ func NewDistributionService(repo repositories.DistributionRepository) Distributi
 	return &distributionService{repo: repo}
 }
 
-func (s *distributionService) Save(distribution models.Distribution) error {
+func (s *distributionService) Save(distribution models.Distribution) (int, error) {
 	return s.repo.Save(distribution)
 }
 

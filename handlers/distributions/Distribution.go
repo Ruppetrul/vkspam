@@ -174,7 +174,7 @@ func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Reques
 			distribution.Id = idInt
 		}
 
-		err = h.service.Save(distribution)
+		id, err := h.service.Save(distribution)
 		if err != nil {
 			handlers.ReturnAppBaseResponse(
 				w,
@@ -185,6 +185,16 @@ func (h *DistributionHandler) Distribution(w http.ResponseWriter, r *http.Reques
 			return
 		}
 
+		if id == 0 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				fmt.Sprintf("Save error parse id: %s", err),
+			)
+			return
+		}
+		distribution.Id = id
 		handlers.ReturnAppBaseResponse(
 			w,
 			http.StatusCreated,

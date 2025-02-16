@@ -8,7 +8,7 @@ import (
 )
 
 type DistributionRepository interface {
-	Save(d models.Distribution) error
+	Save(d models.Distribution) (int, error)
 	Get(id int) (*models.Distribution, error)
 	GetListByGroup(groupId int) (*[]models.Distribution, error)
 	DeleteById(groupId int) error
@@ -22,22 +22,26 @@ func NewDistributionRepository(db *sql.DB) DistributionRepository {
 	return &distributionRepository{DB: db}
 }
 
-func (dr *distributionRepository) Save(d models.Distribution) error {
+func (dr *distributionRepository) Save(d models.Distribution) (int, error) {
+	var id int
 	if d.Id > 0 {
 		db, _ := database.GetDBInstance()
 		_, err := db.Db.Exec(`UPDATE distribution SET name = $1, type = $2, url = $3 WHERE id = $4;`, d.Name, d.Type, d.Url)
 		if err != nil {
-			return errors.New("error insert Distribution")
+			return 0, errors.New("error insert Distribution")
 		}
+		id = d.Id
 	} else {
 		db, _ := database.GetDBInstance()
-		err := db.Db.QueryRow(`INSERT INTO distribution (name, type, url, group_id) VALUES ($1, $2, $3, $4)`, d.Name, d.Type, d.Url, d.GroupId)
+		err := db.Db.QueryRow(
+			`INSERT INTO distribution (name, type, url, group_id) VALUES ($1, $2, $3, $4) RETURNING id;`,
+			d.Name, d.Type, d.Url, d.GroupId).Scan(&id)
 		if err != nil {
-			return err.Err()
+			return 0, err
 		}
 	}
 
-	return nil
+	return id, nil
 }
 
 func (d *distributionRepository) Get(id int) (*models.Distribution, error) {

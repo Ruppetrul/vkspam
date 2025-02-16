@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -30,11 +31,10 @@ func (s *userService) TryLogin(email string, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	if len(user.Email) < 1 || len(user.Password) < 1 {
-		return "", errors.New("email or password is empty. Please contact the administrator")
+	if user.Email != email {
+		return "", errors.New("user with this email not found")
 	}
-
+	fmt.Println(user)
 	if !checkPasswordHash(password, user.Password) {
 		return "", errors.New("invalid password")
 	}
