@@ -6,7 +6,6 @@ import (
 	"fmt"
 	pb "github.com/Ruppetrul/vkspam_proto/gen/parser"
 	"google.golang.org/grpc"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -356,8 +355,10 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		http.Error(writer, "Рассылки не найдены", http.StatusBadRequest)
 	}
 
+	conn, err := NewConnection()
+
 	UpdateProgress(groupIdInt, 0)
-	go process(distributions)
+	go process(distributions, conn)
 
 	err = json.NewEncoder(writer).Encode("Success")
 	if err != nil {
@@ -366,16 +367,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 	}
 }
 
-func process(distributions *[]models.Distribution) {
-	conn, err := grpc.Dial("vkspam_parser:10001", grpc.WithInsecure())
-	fmt.Println(err)
-	if err != nil {
-		UpdateProgress((*distributions)[0].GroupId, -2)
-		log.Fatalf("did not connect: %v", err)
-		return
-	}
-	defer conn.Close()
-
+func process(distributions *[]models.Distribution, conn *grpc.ClientConn) {
 	client := pb.NewParserClient(conn)
 
 	for _, distribution := range *distributions {
