@@ -23,7 +23,7 @@ func NewDistributionGroupRepository(db *sql.DB) DistributionGroupRepository {
 }
 
 func (d *distributionGroupRepository) GetList(userId int) ([]models.DistributionGroup, error) {
-	rows, err := d.DB.Query("SELECT id, name, description, user_id FROM distributiongroup WHERE user_id = $1", userId)
+	rows, err := d.DB.Query("SELECT id, name, description, user_id, sex FROM distributiongroup WHERE user_id = $1", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,13 @@ func (d *distributionGroupRepository) GetList(userId int) ([]models.Distribution
 	var distributionGroups []models.DistributionGroup
 	for rows.Next() {
 		var distributionGroup models.DistributionGroup
-		if err := rows.Scan(&distributionGroup.Id, &distributionGroup.Name, &distributionGroup.Description, &distributionGroup.UserId); err != nil {
+		if err := rows.Scan(
+			&distributionGroup.Id,
+			&distributionGroup.Name,
+			&distributionGroup.Description,
+			&distributionGroup.UserId,
+			&distributionGroup.Sex,
+		); err != nil {
 			return nil, err
 		}
 
