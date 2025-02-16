@@ -401,6 +401,7 @@ func processDistribution(client *pb.ParserClient, distribution *models.Distribut
 			return
 		}
 
+		UpdateProgress(distribution.GroupId, int(progress.Progress))
 		fmt.Printf("Прогресс задачи %s: %d%%, Сообщение: %s\n", progress.TaskId, progress.Progress, progress.Message)
 
 		if progress.Progress == 100 {
