@@ -351,6 +351,19 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		return
 	}
 
+	groupService := NewDistributionGroupHandler()
+	distributionGroup, err := groupService.service.Get(groupIdInt)
+	if err != nil {
+		handlers.ReturnAppBaseResponse(
+			writer,
+			http.StatusInternalServerError,
+			false,
+			err.Error(),
+		)
+
+		return
+	}
+
 	if len(*distributions) < 1 {
 		http.Error(writer, "Рассылки не найдены", http.StatusBadRequest)
 	}
@@ -362,7 +375,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		return
 	}
 	UpdateProgress(groupIdInt, 0)
-	go process(distributions, conn)
+	go process(distributionGroup, distributions, conn)
 
 	err = json.NewEncoder(writer).Encode("Success")
 	if err != nil {
@@ -371,21 +384,28 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 	}
 }
 
-func process(distributions *[]models.Distribution, conn *grpc.ClientConn) {
+func process(distributionGroup *models.DistributionGroup, distributions *[]models.Distribution, conn *grpc.ClientConn) {
 	client := pb.NewParserClient(conn)
 
 	for _, distribution := range *distributions {
-		processDistribution(&client, &distribution)
+		processDistribution(&client, &distribution, distributionGroup)
 	}
 }
 
-func processDistribution(client *pb.ParserClient, distribution *models.Distribution) {
+func processDistribution(client *pb.ParserClient, distribution *models.Distribution, distributionGroup *models.DistributionGroup) {
+
+	var birthdayFilter = ""
+	if true == distributionGroup.OnlyBirthdayToday {
+		currentDate := time.Now()
+		birthdayFilter = currentDate.Format("2.1")
+	}
+
 	req := &pb.ParsePublicRequest{
 		VkToken:   os.Getenv("SYSTEM_VK_TOKEN"),
 		PublicUrl: distribution.Url,
 		Filters: &pb.MemberFilters{
-			Birthday: "15.2", //8.2
-			Sex:      2,      //1-woman , 2-man
+			Birthday: birthdayFilter,               //8.2
+			Sex:      int32(distributionGroup.Sex), //1-woman , 2-man
 		},
 	}
 
