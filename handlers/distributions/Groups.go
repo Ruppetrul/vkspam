@@ -108,12 +108,13 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			http.StatusOK,
 			true,
 			responses.DistributionGroupResponse{
-				Id:            model.Id,
-				Name:          model.Name,
-				Description:   model.Description,
-				UserId:        model.UserId,
-				Sex:           model.Sex,
-				Distributions: *distributions,
+				Id:                model.Id,
+				Name:              model.Name,
+				Description:       model.Description,
+				UserId:            model.UserId,
+				Sex:               model.Sex,
+				Distributions:     *distributions,
+				OnlyBirthdayToday: model.OnlyBirthdayToday,
 			},
 		)
 	}
@@ -326,30 +327,31 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		return
 	}
 
-	//groupId := request.FormValue("group_id")
-	//if len(groupId) < 1 {
-	//	http.Error(writer, "Missing required parameter 'group_id'", http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//distributionHandler := NewDistributionHandler()
-	//
-	//groupIdInt, _ := strconv.Atoi(groupId)
-	//
-	//distributions, err := distributionHandler.service.GetListByGroup(groupIdInt)
-	//if err != nil {
-	//	return
-	//}
+	groupId := request.FormValue("group_id")
+	if len(groupId) < 1 {
+		http.Error(writer, "Missing required parameter 'group_id'", http.StatusBadRequest)
+		return
+	}
 
-	distributions := make([]models.Distribution, 0)
+	distributionHandler := NewDistributionHandler()
 
-	distributions = append(distributions, models.Distribution{
-		Url: "testnautyg",
-	})
+	groupIdInt, _ := strconv.Atoi(groupId)
 
-	go process(&distributions)
+	if 0 == groupIdInt {
+		http.Error(writer, "Missing required parameter 'group_id'", http.StatusBadRequest)
+		return
+	}
+	distributions, err := distributionHandler.service.GetListByGroup(groupIdInt)
+	if err != nil {
+		return
+	}
 
-	err := json.NewEncoder(writer).Encode("Success")
+	if len(*distributions) < 1 {
+		http.Error(writer, "Рассылки не найдены", http.StatusBadRequest)
+	}
+	go process(distributions)
+
+	err = json.NewEncoder(writer).Encode("Success")
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
