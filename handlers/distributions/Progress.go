@@ -25,3 +25,13 @@ func GetProgress(id int) int {
 	defer mutexes[id].Unlock()
 	return percents[id]
 }
+
+func DeleteProgress(id int) {
+	if _, exists := mutexes[id]; !exists {
+		mutexes[id] = &sync.Mutex{}
+	}
+
+	mutexes[id].Lock()
+	defer mutexes[id].Unlock()
+	percents[id] = -1
+}

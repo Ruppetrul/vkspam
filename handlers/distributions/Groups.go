@@ -390,10 +390,11 @@ func process(distributionGroup *models.DistributionGroup, distributions *[]model
 	for _, distribution := range *distributions {
 		processDistribution(&client, &distribution, distributionGroup)
 	}
+
+	DeleteProgress(distributionGroup.Id)
 }
 
 func processDistribution(client *pb.ParserClient, distribution *models.Distribution, distributionGroup *models.DistributionGroup) {
-
 	var birthdayFilter = ""
 	if true == distributionGroup.OnlyBirthdayToday {
 		currentDate := time.Now()
