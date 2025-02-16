@@ -1,8 +1,10 @@
 package models
 
 type DistributionGroup struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	UserId      int    `json:"user_id"`
+	Id                int    `json:"id"`
+	Name              string `json:"name"`
+	Description       string `json:"description"`
+	UserId            int    `json:"user_id"`
+	Sex               int    `json:"sex"`
+	OnlyBirthdayToday bool   `json:"only_birthday_today"`
 }

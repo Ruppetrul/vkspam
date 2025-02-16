@@ -23,7 +23,7 @@ func NewDistributionGroupRepository(db *sql.DB) DistributionGroupRepository {
 }
 
 func (d *distributionGroupRepository) GetList(userId int) ([]models.DistributionGroup, error) {
-	rows, err := d.DB.Query("SELECT * FROM distributiongroup WHERE user_id = $1", userId)
+	rows, err := d.DB.Query("SELECT id, name, description, user_id FROM distributiongroup WHERE user_id = $1", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,9 @@ func (d *distributionGroupRepository) Save(dg models.DistributionGroup) (int, er
 	var id int
 	if dg.Id > 0 {
 		db, _ := database.GetDBInstance()
-		_, err := db.Db.Exec(`UPDATE distributiongroup SET name = $1, description = $2 WHERE id = $3;`, dg.Name, dg.Description, dg.Id)
+		_, err := db.Db.Exec(
+			`UPDATE distributiongroup SET name = $1, description = $2, sex = $3, only_birthday_today = $4 WHERE id = $5;`,
+			dg.Name, dg.Description, dg.Sex, dg.OnlyBirthdayToday, dg.Id)
 		if err != nil {
 			return 0, errors.New("error insert Distribution group")
 		}
@@ -54,8 +56,8 @@ func (d *distributionGroupRepository) Save(dg models.DistributionGroup) (int, er
 	} else {
 		db, _ := database.GetDBInstance()
 		err := db.Db.QueryRow(
-			`INSERT INTO distributiongroup (name, description, user_id) VALUES ($1, $2, $3) RETURNING id`,
-			dg.Name, dg.Description, dg.UserId,
+			`INSERT INTO distributiongroup (name, description, user_id, sex, only_birthday_today) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+			dg.Name, dg.Description, dg.Sex, dg.UserId, dg.OnlyBirthdayToday,
 		).Scan(&id)
 		if err != nil {
 			return 0, err
@@ -84,7 +86,7 @@ func (d *distributionGroupRepository) Delete(id int) error {
 }
 
 func (d *distributionGroupRepository) Get(id int) (*models.DistributionGroup, error) {
-	rows, err := d.DB.Query("SELECT * FROM distributiongroup WHERE id = $1", id)
+	rows, err := d.DB.Query("SELECT id, name, description, user_id, sex, only_birthday_today FROM distributiongroup WHERE id = $1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +95,9 @@ func (d *distributionGroupRepository) Get(id int) (*models.DistributionGroup, er
 
 	var distributionGroup models.DistributionGroup
 	for rows.Next() {
-		if err := rows.Scan(&distributionGroup.Id, &distributionGroup.Name, &distributionGroup.Description, &distributionGroup.UserId); err != nil {
+		if err := rows.Scan(
+			&distributionGroup.Id, &distributionGroup.Name, &distributionGroup.Description,
+			&distributionGroup.UserId, &distributionGroup.Sex, &distributionGroup.OnlyBirthdayToday); err != nil {
 			return nil, err
 		}
 	}

@@ -70,6 +70,17 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 		}
 
 		model, err := h.service.Get(recordId)
+		if err != nil {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				err.Error(),
+			)
+
+			return
+		}
+
 		distributions, err := h.distributionService.GetListByGroup(recordId)
 
 		if err != nil {
@@ -83,6 +94,15 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		if model == nil {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				true,
+				fmt.Sprintf("Ошибка чтения записи из базы'"),
+			)
+		}
+
 		handlers.ReturnAppBaseResponse(
 			w,
 			http.StatusOK,
@@ -92,6 +112,7 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 				Name:          model.Name,
 				Description:   model.Description,
 				UserId:        model.UserId,
+				Sex:           model.Sex,
 				Distributions: *distributions,
 			},
 		)
@@ -122,10 +143,50 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		sex := r.FormValue("sex")
+		if len(sex) < 1 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"Missing required parameter 'sex'",
+			)
+
+			return
+		}
+
+		sexInt, err := strconv.Atoi(sex)
+		if err != nil {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusInternalServerError,
+				false,
+				fmt.Sprintf("Ошибка преобразования: %s", err),
+			)
+
+			return
+		}
+
+		onlyBirthdayToday := r.FormValue("only_birthday_today")
+		if len(onlyBirthdayToday) < 1 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"Missing required parameter 'only_birthday_today'",
+			)
+
+			return
+		}
+
+		onlyBirthdayTodayBool, _ := strconv.ParseBool(onlyBirthdayToday)
+
 		newDistributionGroup := models.DistributionGroup{
-			Name:        r.Form.Get("name"),
-			Description: r.Form.Get("description"),
-			UserId:      user.Id,
+			Name:              r.Form.Get("name"),
+			Description:       r.Form.Get("description"),
+			UserId:            user.Id,
+			Sex:               sexInt,
+			OnlyBirthdayToday: onlyBirthdayTodayBool,
 		}
 
 		if r.Method == http.MethodPut {
