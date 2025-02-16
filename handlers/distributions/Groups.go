@@ -357,6 +357,10 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 
 	conn, err := NewConnection()
 
+	if err != nil {
+		http.Error(writer, "Parser not available. Please try later.", http.StatusInternalServerError)
+		return
+	}
 	UpdateProgress(groupIdInt, 0)
 	go process(distributions, conn)
 
