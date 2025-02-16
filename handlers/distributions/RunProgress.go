@@ -30,7 +30,7 @@ func (h *DistributionGroupHandler) RunProgress(w http.ResponseWriter, r *http.Re
 	handlers.ReturnAppBaseResponse(
 		w,
 		http.StatusOK,
-		false,
+		true,
 		progress,
 	)
 	return

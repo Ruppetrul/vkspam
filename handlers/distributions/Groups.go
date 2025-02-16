@@ -341,6 +341,12 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		http.Error(writer, "Missing required parameter 'group_id'", http.StatusBadRequest)
 		return
 	}
+
+	if -1 < GetProgress(groupIdInt) {
+		http.Error(writer, "Already running", http.StatusBadRequest)
+		return
+	}
+
 	distributions, err := distributionHandler.service.GetListByGroup(groupIdInt)
 	if err != nil {
 		return
@@ -349,6 +355,8 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 	if len(*distributions) < 1 {
 		http.Error(writer, "Рассылки не найдены", http.StatusBadRequest)
 	}
+
+	UpdateProgress(groupIdInt, 0)
 	go process(distributions)
 
 	err = json.NewEncoder(writer).Encode("Success")
@@ -362,6 +370,7 @@ func process(distributions *[]models.Distribution) {
 	conn, err := grpc.Dial("vkspam_parser:10001", grpc.WithInsecure())
 	fmt.Println(err)
 	if err != nil {
+		UpdateProgress((*distributions)[0].GroupId, -2)
 		log.Fatalf("did not connect: %v", err)
 		return
 	}
@@ -384,11 +393,12 @@ func processDistribution(client *pb.ParserClient, distribution *models.Distribut
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Hour)
 	defer cancel()
 
 	stream, err := (*client).ParsePublic(ctx, req)
 	if err != nil {
+		UpdateProgress(distribution.GroupId, -2)
 		fmt.Println("error")
 		fmt.Println(err.Error())
 		return
@@ -397,6 +407,7 @@ func processDistribution(client *pb.ParserClient, distribution *models.Distribut
 	for {
 		progress, err := stream.Recv()
 		if err != nil {
+			UpdateProgress(distribution.GroupId, -2)
 			fmt.Println("error")
 			return
 		}
