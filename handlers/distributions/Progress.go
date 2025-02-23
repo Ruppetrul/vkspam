@@ -1,9 +1,11 @@
 package distributions
 
-import "sync"
+import (
+	"sync"
+)
 
 var (
-	mutexes  = make(map[int]*sync.Mutex) // 0-100 - ok. -1 - not found. -2 - error.
+	mutexes  = make(map[int]*sync.Mutex) // 0-100 - ok. -2 - error.
 	percents = make(map[int]int)
 )
 
@@ -19,7 +21,7 @@ func UpdateProgress(id int, percent int) {
 
 func GetProgress(id int) int {
 	if _, exists := mutexes[id]; !exists {
-		return -1
+		return -2
 	}
 	mutexes[id].Lock()
 	defer mutexes[id].Unlock()
@@ -33,5 +35,6 @@ func DeleteProgress(id int) {
 
 	mutexes[id].Lock()
 	defer mutexes[id].Unlock()
-	percents[id] = -1
+	delete(percents, id)
+	delete(mutexes, id)
 }

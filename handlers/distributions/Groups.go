@@ -377,6 +377,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 
 	if len(*distributions) < 1 {
 		http.Error(writer, "Рассылки не найдены", http.StatusBadRequest)
+		return
 	}
 
 	conn, err := NewConnection()
@@ -426,7 +427,7 @@ func processDistribution(client *pb.ParserClient, distribution *models.Distribut
 
 	stream, err := (*client).ParsePublic(ctx, req)
 	if err != nil {
-		UpdateProgress(distribution.GroupId, -2)
+		DeleteProgress(distributionGroup.Id)
 		fmt.Println("error")
 		fmt.Println(err.Error())
 		return
@@ -435,7 +436,7 @@ func processDistribution(client *pb.ParserClient, distribution *models.Distribut
 	for {
 		progress, err := stream.Recv()
 		if err != nil {
-			UpdateProgress(distribution.GroupId, -2)
+			DeleteProgress(distributionGroup.Id)
 			fmt.Println("error")
 			return
 		}
