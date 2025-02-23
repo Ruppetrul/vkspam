@@ -42,6 +42,17 @@ func NewDistributionGroupHandler() *DistributionGroupHandler {
 func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUserFromContext(r.Context())
 
+	if 0 == user.Id {
+		handlers.ReturnAppBaseResponse(
+			w,
+			http.StatusBadRequest,
+			false,
+			fmt.Sprintf("User id undefined"),
+		)
+
+		return
+	}
+
 	if r.Method == http.MethodGet {
 		id := r.FormValue("id")
 

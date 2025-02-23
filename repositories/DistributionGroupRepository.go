@@ -50,8 +50,8 @@ func (d *distributionGroupRepository) GetList(userId int) ([]models.Distribution
 
 func (d *distributionGroupRepository) Save(dg models.DistributionGroup) (int, error) {
 	var id int
+	db, _ := database.GetDBInstance()
 	if dg.Id > 0 {
-		db, _ := database.GetDBInstance()
 		_, err := db.Db.Exec(
 			`UPDATE distributiongroup SET name = $1, description = $2, sex = $3, only_birthday_today = $4 WHERE id = $5;`,
 			dg.Name, dg.Description, dg.Sex, dg.OnlyBirthdayToday, dg.Id)
@@ -60,10 +60,9 @@ func (d *distributionGroupRepository) Save(dg models.DistributionGroup) (int, er
 		}
 		id = dg.Id
 	} else {
-		db, _ := database.GetDBInstance()
 		err := db.Db.QueryRow(
 			`INSERT INTO distributiongroup (name, description, user_id, sex, only_birthday_today) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-			dg.Name, dg.Description, dg.Sex, dg.UserId, dg.OnlyBirthdayToday,
+			dg.Name, dg.Description, dg.UserId, dg.Sex, dg.OnlyBirthdayToday,
 		).Scan(&id)
 		if err != nil {
 			return 0, err
