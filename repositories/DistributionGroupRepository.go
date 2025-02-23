@@ -23,7 +23,10 @@ func NewDistributionGroupRepository(db *sql.DB) DistributionGroupRepository {
 }
 
 func (d *distributionGroupRepository) GetList(userId int) ([]models.DistributionGroup, error) {
-	rows, err := d.DB.Query("SELECT id, name, description, user_id, sex FROM distributiongroup WHERE user_id = $1", userId)
+	rows, err := d.DB.Query(
+		"SELECT id, name, description, user_id, sex, only_birthday_today FROM distributiongroup WHERE user_id = $1",
+		userId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -38,6 +41,7 @@ func (d *distributionGroupRepository) GetList(userId int) ([]models.Distribution
 			&distributionGroup.Description,
 			&distributionGroup.UserId,
 			&distributionGroup.Sex,
+			&distributionGroup.OnlyBirthdayToday,
 		); err != nil {
 			return nil, err
 		}
