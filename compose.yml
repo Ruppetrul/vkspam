@@ -11,7 +11,7 @@ services:
     networks:
       - vkspam
   postgres:
-    image: postgres:15
+    image: postgres
     ports:
       - "5432:5432"
     environment:
