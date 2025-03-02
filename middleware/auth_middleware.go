@@ -16,14 +16,14 @@ const UserContextKey = "user"
 
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenString := r.Header.Get("jwt_token")
+		tokenString := r.Header.Get("jwt-token")
 
 		if len(tokenString) < 1 {
 			handlers.ReturnAppBaseResponse(
 				w,
 				http.StatusUnauthorized,
 				false,
-				"jwt_token not found.",
+				"jwt-token not found.",
 			)
 			return
 		}
