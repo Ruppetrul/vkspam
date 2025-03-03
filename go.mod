@@ -5,7 +5,7 @@ go 1.23.2
 require github.com/joho/godotenv v1.5.1
 
 require (
-	github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250215182955-5e738bd3ae9e
+	github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250303184747-4e5bd0d353a8
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/lib/pq v1.10.9
 	golang.org/x/crypto v0.32.0

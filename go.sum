@@ -1,7 +1,11 @@
 github.com/Ruppetrul/vkspam_proto v0.0.0-20250215164159-45c04f0e5a5e h1:osczjP7aRd6pgMNPFUUpYEN0m7x99rbfMF9FvBRqdxQ=
 github.com/Ruppetrul/vkspam_proto v0.0.0-20250215164159-45c04f0e5a5e/go.mod h1:CiqR2ULDelGy4XIwV3gz0A2jpI5hC2BQADO5/fd2oQ8=
+github.com/Ruppetrul/vkspam_proto v0.0.1 h1:6Dg71QqrU7ao9YzgWPrFOCTRorbvvgXmeTApU5g6nTY=
+github.com/Ruppetrul/vkspam_proto v0.0.1/go.mod h1:CiqR2ULDelGy4XIwV3gz0A2jpI5hC2BQADO5/fd2oQ8=
 github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250215182955-5e738bd3ae9e h1:+zOkpwUuQv4uzkfO4GjCpcQcpR0uw3lyHH/BBniYch0=
 github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250215182955-5e738bd3ae9e/go.mod h1:Js6c9uRhr958rmNsMtdPC8CDVM/X6whL2+Oe8EYrNdo=
+github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250303184747-4e5bd0d353a8 h1:OyNm48VxFePazqJTZGeJL8sY1KgNVQGELJTKoUuC5lk=
+github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250303184747-4e5bd0d353a8/go.mod h1:Js6c9uRhr958rmNsMtdPC8CDVM/X6whL2+Oe8EYrNdo=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
 github.com/go-logr/logr v1.4.2/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
 github.com/go-logr/stdr v1.2.2 h1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=

@@ -432,8 +432,9 @@ func processDistribution(client *pb.ParserClient, distribution *models.Distribut
 		VkToken:   os.Getenv("SYSTEM_VK_TOKEN"),
 		PublicUrl: distribution.Url,
 		Filters: &pb.MemberFilters{
-			Birthday: birthdayFilter,               //8.2
-			Sex:      int32(distributionGroup.Sex), //1-woman , 2-man
+			Birthday:        birthdayFilter,               //8.2
+			Sex:             int32(distributionGroup.Sex), //1-woman , 2-man
+			BirthdayFriends: distributionGroup.OnlyBirthdayFriends,
 		},
 	}
 
