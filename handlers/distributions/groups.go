@@ -118,13 +118,14 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			http.StatusOK,
 			true,
 			responses.DistributionGroupResponse{
-				Id:                model.Id,
-				Name:              model.Name,
-				Description:       model.Description,
-				UserId:            model.UserId,
-				Sex:               model.Sex,
-				Distributions:     *distributions,
-				OnlyBirthdayToday: model.OnlyBirthdayToday,
+				Id:                  model.Id,
+				Name:                model.Name,
+				Description:         model.Description,
+				UserId:              model.UserId,
+				Sex:                 model.Sex,
+				Distributions:       *distributions,
+				OnlyBirthdayToday:   model.OnlyBirthdayToday,
+				OnlyBirthdayFriends: model.OnlyBirthdayFriends,
 			},
 		)
 	}
@@ -190,14 +191,28 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		onlyBirthdayFriends := r.FormValue("only_birthday_friends")
+		if len(onlyBirthdayFriends) < 1 {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"Missing required parameter 'only_birthday_friends'",
+			)
+
+			return
+		}
+
 		onlyBirthdayTodayBool, _ := strconv.ParseBool(onlyBirthdayToday)
+		onlyBirthdayFriendsBool, _ := strconv.ParseBool(onlyBirthdayFriends)
 
 		newDistributionGroup := models.DistributionGroup{
-			Name:              r.Form.Get("name"),
-			Description:       r.Form.Get("description"),
-			UserId:            user.Id,
-			Sex:               sexInt,
-			OnlyBirthdayToday: onlyBirthdayTodayBool,
+			Name:                r.Form.Get("name"),
+			Description:         r.Form.Get("description"),
+			UserId:              user.Id,
+			Sex:                 sexInt,
+			OnlyBirthdayToday:   onlyBirthdayTodayBool,
+			OnlyBirthdayFriends: onlyBirthdayFriendsBool,
 		}
 
 		if r.Method == http.MethodPut {

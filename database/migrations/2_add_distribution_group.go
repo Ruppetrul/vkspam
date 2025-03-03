@@ -11,7 +11,8 @@ func (v AddDistributionGroup) GetSql() (sql string) {
 			description TEXT,
 		    user_id INT,
 		    sex int NOT NULL DEFAULT 0,
-		    only_birthday_today boolean DEFAULT false
+		    only_birthday_today boolean DEFAULT false,
+		    only_birthday_friends boolean DEFAULT false
 		);
 	`
 }
