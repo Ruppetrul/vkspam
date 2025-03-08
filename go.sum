@@ -6,6 +6,8 @@ github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250215182955-5e738bd3ae9e h1:+zOkpw
 github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250215182955-5e738bd3ae9e/go.mod h1:Js6c9uRhr958rmNsMtdPC8CDVM/X6whL2+Oe8EYrNdo=
 github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250303184747-4e5bd0d353a8 h1:OyNm48VxFePazqJTZGeJL8sY1KgNVQGELJTKoUuC5lk=
 github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250303184747-4e5bd0d353a8/go.mod h1:Js6c9uRhr958rmNsMtdPC8CDVM/X6whL2+Oe8EYrNdo=
+github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250308195139-bd1215499bba h1:/RBlyqSt9MuW2DdTuvhfXBdnByrmXs6W+ORfD/pstn4=
+github.com/Ruppetrul/vkspam_proto v0.0.2-0.20250308195139-bd1215499bba/go.mod h1:Js6c9uRhr958rmNsMtdPC8CDVM/X6whL2+Oe8EYrNdo=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
 github.com/go-logr/logr v1.4.2/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
 github.com/go-logr/stdr v1.2.2 h1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=

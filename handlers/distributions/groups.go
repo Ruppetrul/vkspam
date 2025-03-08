@@ -436,6 +436,7 @@ func processDistribution(client *pb.ParserClient, distribution *models.Distribut
 			Sex:             int32(distributionGroup.Sex), //1-woman , 2-man
 			BirthdayFriends: distributionGroup.OnlyBirthdayFriends,
 		},
+		Message: distributionGroup.Description,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Hour)
