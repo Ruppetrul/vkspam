@@ -20,7 +20,7 @@ import (
 )
 
 type DistributionGroupHandler struct {
-	service             services.DistributionGroupService
+	Service             services.DistributionGroupService
 	distributionService services.DistributionService
 }
 
@@ -34,7 +34,7 @@ func NewDistributionGroupHandler() *DistributionGroupHandler {
 	distributionService := services.NewDistributionService(distributionRepository)
 
 	return &DistributionGroupHandler{
-		service:             distributionGroupService,
+		Service:             distributionGroupService,
 		distributionService: distributionService,
 	}
 }
@@ -79,7 +79,7 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		model, err := h.service.Get(recordId)
+		model, err := h.Service.Get(recordId)
 		if err != nil {
 			handlers.ReturnAppBaseResponse(
 				w,
@@ -243,7 +243,7 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			newDistributionGroup.Id = recordId
 		}
 
-		id, err := h.service.Save(newDistributionGroup)
+		id, err := h.Service.Save(newDistributionGroup)
 
 		if err != nil {
 			handlers.ReturnAppBaseResponse(
@@ -299,7 +299,7 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		err = h.service.Delete(recordId)
+		err = h.Service.Delete(recordId)
 		if err != nil {
 			handlers.ReturnAppBaseResponse(
 				w,
@@ -331,7 +331,7 @@ func (h *DistributionGroupHandler) List(w http.ResponseWriter, r *http.Request) 
 	}
 
 	user := middleware.GetUserFromContext(r.Context())
-	distributionGroups, err := h.service.GetList(user.Id)
+	distributionGroups, err := h.Service.GetList(user.Id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -378,7 +378,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 	}
 
 	groupService := NewDistributionGroupHandler()
-	distributionGroup, err := groupService.service.Get(groupIdInt)
+	distributionGroup, err := groupService.Service.Get(groupIdInt)
 	if err != nil {
 		handlers.ReturnAppBaseResponse(
 			writer,
@@ -395,10 +395,25 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		return
 	}
 
+	today := time.Now()
+	if distributionGroup.LastProcessing.Year() == today.Year() &&
+		distributionGroup.LastProcessing.Month() == today.Month() &&
+		distributionGroup.LastProcessing.Day() == today.Day() {
+		http.Error(writer, "Today already was processing.", http.StatusInternalServerError)
+		return
+	}
+
 	conn, err := NewConnection()
 
 	if err != nil {
 		http.Error(writer, "Parser not available. Please try later.", http.StatusInternalServerError)
+		return
+	}
+
+	(*distributionGroup).LastProcessing = time.Now()
+	_, err = h.Service.Save(*distributionGroup)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	UpdateProgress(groupIdInt, 0, "")

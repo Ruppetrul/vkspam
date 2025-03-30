@@ -58,16 +58,31 @@ func (d *distributionGroupRepository) Save(dg models.DistributionGroup) (int, er
 	db, _ := database.GetDBInstance()
 	if dg.Id > 0 {
 		_, err := db.Db.Exec(
-			`UPDATE distributiongroup SET name = $1, description = $2, sex = $3, only_birthday_today = $4, only_birthday_friends = $5 WHERE id = $6;`,
-			dg.Name, dg.Description, dg.Sex, dg.OnlyBirthdayToday, dg.OnlyBirthdayFriends, dg.Id)
+			`UPDATE distributiongroup 
+				SET name = $1, 
+				    description = $2, 
+				    sex = $3, 
+				    only_birthday_today = $4,
+				    only_birthday_friends = $5,
+				    last_processing = $6
+				WHERE id = $7;`,
+			dg.Name, dg.Description, dg.Sex, dg.OnlyBirthdayToday, dg.OnlyBirthdayFriends, dg.LastProcessing, dg.Id)
 		if err != nil {
 			return 0, errors.New("error insert Distribution group")
 		}
 		id = dg.Id
 	} else {
 		err := db.Db.QueryRow(
-			`INSERT INTO distributiongroup (name, description, user_id, sex, only_birthday_today, only_birthday_friends) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-			dg.Name, dg.Description, dg.UserId, dg.Sex, dg.OnlyBirthdayToday, dg.OnlyBirthdayFriends,
+			`INSERT INTO distributiongroup (
+					   name,
+					   description, 
+					   user_id, 
+					   sex, 
+					   only_birthday_today, 
+					   only_birthday_friends,
+					   last_processing,
+					   ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+			dg.Name, dg.Description, dg.UserId, dg.Sex, dg.OnlyBirthdayToday, dg.OnlyBirthdayFriends, dg.LastProcessing,
 		).Scan(&id)
 		if err != nil {
 			return 0, err
@@ -96,7 +111,16 @@ func (d *distributionGroupRepository) Delete(id int) error {
 }
 
 func (d *distributionGroupRepository) Get(id int) (*models.DistributionGroup, error) {
-	rows, err := d.DB.Query("SELECT id, name, description, user_id, sex, only_birthday_today, only_birthday_friends FROM distributiongroup WHERE id = $1", id)
+	rows, err := d.DB.Query("SELECT"+
+		" id,"+
+		" name,"+
+		" description, "+
+		" user_id, "+
+		" sex, "+
+		" only_birthday_today,"+
+		" only_birthday_friends,"+
+		" last_processing"+
+		" FROM distributiongroup WHERE id = $1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +132,7 @@ func (d *distributionGroupRepository) Get(id int) (*models.DistributionGroup, er
 		if err := rows.Scan(
 			&distributionGroup.Id, &distributionGroup.Name, &distributionGroup.Description,
 			&distributionGroup.UserId, &distributionGroup.Sex, &distributionGroup.OnlyBirthdayToday,
-			&distributionGroup.OnlyBirthdayFriends,
+			&distributionGroup.OnlyBirthdayFriends, &distributionGroup.LastProcessing,
 		); err != nil {
 			return nil, err
 		}

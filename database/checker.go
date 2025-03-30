@@ -25,6 +25,7 @@ func CheckAndMigrate() {
 	runMigration(db, migrations.AddDistributionUrl{}.GetSql())
 	runMigration(db, migrations.AddDistributionNumber{}.GetSql())
 	runMigration(db, migrations.AddVkToken{}.GetSql())
+	runMigration(db, migrations.AddLastProcessing{}.GetSql())
 }
 
 func runMigration(db models.DbSingleton, sql string) {
