@@ -367,7 +367,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		return
 	}
 
-	if -1 < GetProgress(groupIdInt) {
+	if -1 < (*GetProgress(groupIdInt)).Progress {
 		http.Error(writer, "Already running", http.StatusBadRequest)
 		return
 	}
@@ -401,7 +401,7 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 		http.Error(writer, "Parser not available. Please try later.", http.StatusInternalServerError)
 		return
 	}
-	UpdateProgress(groupIdInt, 0)
+	UpdateProgress(groupIdInt, 0, "")
 	go process(distributionGroup, distributions, conn)
 
 	err = json.NewEncoder(writer).Encode("Success")
@@ -414,14 +414,20 @@ func (h *DistributionGroupHandler) Run(writer http.ResponseWriter, request *http
 func process(distributionGroup *models.DistributionGroup, distributions *[]models.Distribution, conn *grpc.ClientConn) {
 	client := pb.NewParserClient(conn)
 
-	for _, distribution := range *distributions {
-		processDistribution(&client, &distribution, distributionGroup)
+	for position, distribution := range *distributions {
+		processDistribution(&client, &distribution, distributionGroup, position, len(*distributions))
 	}
 
 	DeleteProgress(distributionGroup.Id)
 }
 
-func processDistribution(client *pb.ParserClient, distribution *models.Distribution, distributionGroup *models.DistributionGroup) {
+func processDistribution(
+	client *pb.ParserClient,
+	distribution *models.Distribution,
+	distributionGroup *models.DistributionGroup,
+	position int,
+	distributionsCount int,
+) {
 	var birthdayFilter = ""
 	if true == distributionGroup.OnlyBirthdayToday {
 		currentDate := time.Now()
@@ -458,7 +464,8 @@ func processDistribution(client *pb.ParserClient, distribution *models.Distribut
 			return
 		}
 
-		UpdateProgress(distribution.GroupId, int(progress.Progress))
+		message := string(rune(position)) + "/" + string(rune(distributionsCount)) + " Рассылка " + distribution.Name
+		UpdateProgress(distribution.GroupId, int(progress.Progress), message)
 		fmt.Printf("Прогресс задачи %s: %d%%, Сообщение: %s\n", progress.TaskId, progress.Progress, progress.Message)
 
 		if progress.Progress == 100 {

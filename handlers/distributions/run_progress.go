@@ -25,13 +25,11 @@ func (h *DistributionGroupHandler) RunProgress(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	progress := GetProgress(groupIdInt)
-
 	handlers.ReturnAppBaseResponse(
 		w,
 		http.StatusOK,
 		true,
-		progress,
+		*GetProgress(groupIdInt),
 	)
 	return
 }

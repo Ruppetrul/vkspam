@@ -2,14 +2,16 @@ package distributions
 
 import (
 	"sync"
+	"vkspam/handlers/responses"
 )
 
 var (
-	mutexes  = make(map[int]*sync.Mutex) // 0-100 - ok. -2 - error.
-	percents = make(map[int]int)
+	mutexes       = make(map[int]*sync.Mutex) // 0-100 - ok. -2 - error.
+	percents      = make(map[int]int)
+	statusMessage = make(map[int]string)
 )
 
-func UpdateProgress(id int, percent int) {
+func UpdateProgress(id int, percent int, message string) {
 	if _, exists := mutexes[id]; !exists {
 		mutexes[id] = &sync.Mutex{}
 	}
@@ -17,15 +19,22 @@ func UpdateProgress(id int, percent int) {
 	mutexes[id].Lock()
 	defer mutexes[id].Unlock()
 	percents[id] = percent
+	statusMessage[id] = message
 }
 
-func GetProgress(id int) int {
+func GetProgress(id int) *responses.ProcessDistributionResponse {
 	if _, exists := mutexes[id]; !exists {
-		return -2
+		return &responses.ProcessDistributionResponse{
+			Progress: -2,
+			Message:  "",
+		}
 	}
 	mutexes[id].Lock()
 	defer mutexes[id].Unlock()
-	return percents[id]
+	return &responses.ProcessDistributionResponse{
+		Progress: percents[id],
+		Message:  statusMessage[id],
+	}
 }
 
 func DeleteProgress(id int) {
