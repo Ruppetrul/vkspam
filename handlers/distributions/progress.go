@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	mutexes       = make(map[int]*sync.Mutex) // 0-100 - ok. -2 - error.
+	mutexes       = make(map[int]*sync.Mutex) // 0-100 - ok. -1 final -2 - error.
 	percents      = make(map[int]int)
 	statusMessage = make(map[int]string)
 )
@@ -25,7 +25,7 @@ func UpdateProgress(id int, percent int, message string) {
 func GetProgress(id int) *responses.ProcessDistributionResponse {
 	if _, exists := mutexes[id]; !exists {
 		return &responses.ProcessDistributionResponse{
-			Progress: -2,
+			Progress: -1,
 			Message:  "",
 		}
 	}
