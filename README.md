@@ -4,3 +4,7 @@ Web-сервер для работы с фронтендом.
 
 ### 1 часть - Frontend Vue3. https://github.com/Ruppetrul/VKspam-front
 ### 3 часть - Сервис по работе с Vk Api. https://github.com/Ruppetrul/vkspam
+
+## Администрирование
+Admin-login: admin@gmail.com
+Admin-password: somepassword
