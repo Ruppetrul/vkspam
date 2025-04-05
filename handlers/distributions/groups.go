@@ -431,6 +431,7 @@ func process(distributionGroup *models.DistributionGroup, distributions *[]model
 
 	for position, distribution := range *distributions {
 		processDistribution(&client, &distribution, distributionGroup, position, len(*distributions))
+		fmt.Printf("Старутет обработка %d", position)
 	}
 
 	DeleteProgress(distributionGroup.Id)
@@ -479,7 +480,7 @@ func processDistribution(
 			return
 		}
 
-		message := string(rune(position)) + "/" + string(rune(distributionsCount)) + " Рассылка " + distribution.Name
+		message := fmt.Sprintf("%d/%d Рассылка %s", position, distributionsCount, distribution.Name)
 		UpdateProgress(distribution.GroupId, int(progress.Progress), message)
 		fmt.Printf("Прогресс задачи %s: %d%%, Сообщение: %s\n", progress.TaskId, progress.Progress, progress.Message)
 

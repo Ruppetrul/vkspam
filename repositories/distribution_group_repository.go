@@ -90,7 +90,7 @@ func (d *distributionGroupRepository) Save(dg models.DistributionGroup) (int, er
 					   sex, 
 					   only_birthday_today, 
 					   only_birthday_friends,
-					   last_processing,
+					   last_processing
 					   ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
 			dg.Name, dg.Description, dg.UserId, dg.Sex, dg.OnlyBirthdayToday, dg.OnlyBirthdayFriends, dg.LastProcessing,
 		).Scan(&id)
