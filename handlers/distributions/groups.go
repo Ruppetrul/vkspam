@@ -206,6 +206,17 @@ func (h *DistributionGroupHandler) Group(w http.ResponseWriter, r *http.Request)
 		onlyBirthdayTodayBool, _ := strconv.ParseBool(onlyBirthdayToday)
 		onlyBirthdayFriendsBool, _ := strconv.ParseBool(onlyBirthdayFriends)
 
+		if onlyBirthdayTodayBool && onlyBirthdayFriendsBool {
+			handlers.ReturnAppBaseResponse(
+				w,
+				http.StatusBadRequest,
+				false,
+				"only_birthday_today and only_birthday_friends cannot be set at the same time",
+			)
+
+			return
+		}
+
 		newDistributionGroup := models.DistributionGroup{
 			Name:                r.Form.Get("name"),
 			Description:         r.Form.Get("description"),
