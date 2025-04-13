@@ -457,7 +457,7 @@ func processDistribution(
 	distributionsCount int,
 ) {
 	var birthdayFilter = ""
-	if true == distributionGroup.OnlyBirthdayToday {
+	if true == distributionGroup.OnlyBirthdayToday || true == distributionGroup.OnlyBirthdayFriends {
 		currentDate := time.Now()
 		birthdayFilter = currentDate.Format("2.1")
 	}
