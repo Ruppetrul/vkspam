@@ -484,7 +484,7 @@ func processDistribution(
 			return
 		}
 
-		message := fmt.Sprintf("%d/%d Рассылка %s", position, distributionsCount, distribution.Name)
+		message := fmt.Sprintf("%d/%d Рассылка %s", position+1, distributionsCount, distribution.Name)
 		UpdateProgress(distribution.GroupId, int(progress.Progress), message)
 		fmt.Printf("Прогресс задачи %s: %d%%, Сообщение: %s\n", progress.TaskId, progress.Progress, progress.Message)
 
