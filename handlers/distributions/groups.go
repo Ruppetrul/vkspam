@@ -431,6 +431,7 @@ func process(distributionGroup *models.DistributionGroup, distributions *[]model
 
 	for position, distribution := range *distributions {
 		processDistribution(&client, &distribution, distributionGroup, position, len(*distributions))
+		time.Sleep(3 * time.Second)
 		fmt.Printf("Старутет обработка %d", position)
 	}
 
@@ -465,6 +466,9 @@ func processDistribution(
 	defer cancel()
 
 	stream, err := (*client).ParsePublic(ctx, req)
+
+	defer stream.CloseSend() //TODO handle err
+
 	if err != nil {
 		DeleteProgress(distributionGroup.Id)
 		fmt.Println("error")
